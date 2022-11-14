@@ -147,7 +147,7 @@ public class Work01 {
         int rowLen = matrix.length;
         int colLen = matrix[0].length;
 
-        // init an array that record track
+        // init an array that record track (read backward)
         // 0: top left, 1: top, -1: left
         int[] track = new int[Math.max(rowLen, colLen) * 2];
         int t = 0;
