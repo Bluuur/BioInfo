@@ -4,17 +4,17 @@ import java.util.Scanner;
 /**
  * @author Zidong Zh
  * @date 2022/11/10
- * @repo
+ * @repo <a href="https://github.com/Bluuur/BioInfo">...</a>
  */
 public class Work01 {
     public static void main(String[] args) {
         char[] seq1;
         char[] seq2;
 
-//        seq1 = getSequence();
-//        seq2 = getSequence();
-        seq1 = "AACGTACTCAAGTCT".toCharArray();
-        seq2 = "TCGTACTCTAACGAT".toCharArray();
+        seq1 = getSequence();
+        seq2 = getSequence();
+//        seq1 = "AACGTACTCAAGTCT".toCharArray();
+//        seq2 = "TCGTACTCTAACGAT".toCharArray();
 
         Scanner scanner = new Scanner(System.in);
 
@@ -22,6 +22,9 @@ public class Work01 {
         System.out.println("Rule 2: match = 9, mismatch = -3, insertion = deletion = -2");
         System.out.print("Choose rule(1/2):");
         int rule = scanner.nextInt();
+
+        System.out.println("Choose algorithm, 1 for Needleman-Wunsch, 2 for Smith-Waterman:");
+        int algorithm = scanner.nextInt();
 
         int match1 = 9;
         int mismatch1 = -6;
@@ -76,6 +79,16 @@ public class Work01 {
         return seq;
     }
 
+    /**
+     * Local alignment, Needleman-Wunsch
+     *
+     * @param seq1     Input sequence 1
+     * @param seq2     Input sequence 2
+     * @param match    Score for match
+     * @param mismatch Score for mismatch
+     * @param gap      Score for gap (Insertion or deletion)
+     * @return Marking matrix
+     */
     public static int[][] localAlignment(char[] seq1, char[] seq2, int match, int mismatch, int gap) {
         int[][] matrix = new int[seq1.length + 1][seq2.length + 1];
 
@@ -95,8 +108,44 @@ public class Work01 {
         return matrix;
     }
 
+    /**
+     * Global alignment, Smith-Waterman
+     *
+     * @param seq1     Input sequence 1
+     * @param seq2     Input sequence 2
+     * @param match    Score for match
+     * @param mismatch Score for mismatch
+     * @param gap      Score for gap (Insertion or deletion)
+     * @return Marking matrix
+     */
     public static int[][] globalAlignment(char[] seq1, char[] seq2, int match, int mismatch, int gap) {
+        int[][] matrix = new int[seq1.length + 1][seq2.length + 1];
 
+        for (int i = 0; i <= seq1.length; i++) {
+            for (int j = 0; j <= seq2.length; j++) {
+                if (i == 0 || j == 0) {
+                    matrix[i][j] = i * gap + j * gap;
+                } else {
+                    int a = (seq1[i - 1] == seq2[j - 1] ? matrix[i - 1][j - 1] + match : matrix[i - 1][j - 1] + mismatch);
+                    int b = matrix[i - 1][j] + gap;
+                    int c = matrix[i][j - 1] + gap;
+                    matrix[i][j] = Math.max(0, Math.max(a, Math.max(b, c)));
+                }
+            }
+        }
+
+        return matrix;
+    }
+
+    public static void backTrack(int[][] matrix) {
+        int rowLen = matrix.length;
+        int colLen = matrix[0].length;
+
+        // init a array that record track
+        // 0: top left, 1: top, -1: left
+        int[] track = new int[Math.max(rowLen, colLen) * 2];
+        int i = rowLen - 1;
+        int j = colLen - 1;
     }
 }
 
