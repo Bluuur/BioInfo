@@ -17,8 +17,8 @@ public class Main {
         ScoreRule rule2 = new ScoreRule(9, -3, -2);
         char[] seq1 = "AACGTACTCAAGTCT".toCharArray();
         char[] seq2 = "TCGTACTCTAACGAT".toCharArray();
-        AlignmentConstructor alignmentConstructor = new AlignmentConstructor(seq1, seq2, rule1);
-//        AlignmentConstructor alignmentConstructor = new AlignmentConstructor(seq1, seq2, rule2);
+//        AlignmentConstructor alignmentConstructor = new AlignmentConstructor(seq1, seq2, rule1);
+        AlignmentConstructor alignmentConstructor = new AlignmentConstructor(seq1, seq2, rule2);
 
         // print system time
         Date date = new Date();

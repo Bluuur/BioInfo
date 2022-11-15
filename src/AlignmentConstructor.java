@@ -4,6 +4,7 @@ import java.util.Scanner;
 /**
  * @author Zidong Zh
  * @date 2022/11/10
+ * @repo <a href="https://github.com/Bluuur/BioInfo">...</a>
  */
 class AlignmentConstructor {
     private char[] sequence1;
@@ -154,9 +155,7 @@ class AlignmentConstructor {
             }
         }
         System.out.println("Score: " + score);
-        System.out.println();
         localTrackBack();
-
     }
 
     /**
