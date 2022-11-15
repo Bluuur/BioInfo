@@ -28,6 +28,15 @@ class ScoreRule {
         System.out.println();
     }
 
+    @Override
+    public String toString() {
+        return "ScoreRule{" +
+                "match=" + match +
+                ", mismatch=" + mismatch +
+                ", gap=" + gap +
+                '}';
+    }
+
     public int getMatch() {
         return match;
     }

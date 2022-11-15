@@ -1,3 +1,4 @@
+import java.sql.SQLOutput;
 import java.util.Scanner;
 
 /**
@@ -64,6 +65,7 @@ class AlignmentConstructor {
      */
     public void globalAlignment() {
         System.out.println("---------- Global Alignment -----------");
+        System.out.println(scoreRule);
         int rowLen = sequence2.length + 1;
         int colLen = sequence1.length + 1;
 
@@ -107,7 +109,7 @@ class AlignmentConstructor {
         printScoreMatrix();
         int score = scoreMatrix[sequence2.length][sequence1.length];
         System.out.println("Score: " + score);
-        trackBack();
+        globalTrackBack();
         System.out.println();
     }
 
@@ -116,6 +118,7 @@ class AlignmentConstructor {
      */
     public void localAlignment() {
         System.out.println("---------- Local Alignment -----------");
+        System.out.println(scoreRule);
         int rowLen = sequence2.length + 1;
         int colLen = sequence1.length + 1;
 
@@ -152,7 +155,8 @@ class AlignmentConstructor {
         }
         System.out.println("Score: " + score);
         System.out.println();
-        trackBack0();
+        localTrackBack();
+
     }
 
     /**
@@ -186,66 +190,194 @@ class AlignmentConstructor {
         }
     }
 
-    public void trackBack() {
+    /**
+     * track back from track matrix (global alignment)
+     */
+    public void globalTrackBack() {
+        System.out.println();
+
+        // print track matrix
+//        for (int i = 0; i < trackMatrix.length; i++) {
+//            for (int j = 0; j < trackMatrix[0].length; j++) {
+//                System.out.printf("%3d", trackMatrix[i][j]);
+//            }
+//            System.out.println();
+//        }
+//        System.out.println();
+
         StringBuilder seqOut1 = new StringBuilder();
         StringBuilder seqOut2 = new StringBuilder();
-        boolean flag = false; // 标志位，判断是否有多种情况
+
+        boolean flag = false;
         int i, j;
 
         while (true) {
             seqOut1.append(' ');
             seqOut2.append(' ');
             flag = false;
-            i = sequence2.length; // 行
-            j = sequence2.length; //列
+            i = sequence2.length;
+            j = sequence2.length;
             while (trackMatrix[i][j] != 0) {
                 switch (trackMatrix[i][j]) {
-                    case 1: // 只来自左上角
+
+                    // leftTop
+                    case 1:
                         seqOut1.append(sequence1[j - 1]);
                         seqOut2.append(sequence2[i - 1]);
                         i--;
                         j--;
                         break;
-                    case 2: // 只来自左空格
+
+                    // left
+                    case 2:
                         seqOut1.append(sequence1[j - 1]);
-                        seqOut2.append('_');
+                        seqOut2.append('-');
                         j--;
                         break;
-                    case 3: // 来自 1 + 2
-                        // 若kind已经为true，说明已经走了一个分支，此时不需要-2
+
+                    // 1 + 2 leftTop & left
+                    case 3:
+                        // -2 once at cross
                         if (!flag) {
                             trackMatrix[i][j] -= 2;
                             flag = true;
                         }
                         seqOut1.append(sequence1[j - 1]);
-                        seqOut2.append('_');
+                        seqOut2.append('-');
                         j--;
                         break;
-                    case 4: // 只来自上空格
-                        seqOut1.append('_');
+
+                    // top
+                    case 4:
+                        seqOut1.append('-');
                         seqOut2.append(sequence2[i - 1]);
                         i--;
                         break;
-                    case 5: // 来自 1 + 4
-                    case 6: // 来自 2 + 4
-                    case 7: // 来自 1 + 2 + 4
-                        // 若kind已经为true，说明已经走了一个分支，此时不需要-4
+
+                    case 5: // 1 + 4
+                    case 6: // 2 + 4
+                    case 7: // 1 + 2 + 4
+                        // -4 once at crossing
                         if (!flag) {
                             trackMatrix[i][j] -= 4;
                             flag = true;
                         }
-                        seqOut1.append('_');
+                        seqOut1.append('-');
                         seqOut2.append(sequence2[i - 1]);
                         i--;
                         break;
+                    default:
+                        System.out.println("Error");
+                        return;
                 }
             }
             if (!flag) {
                 break;
             }
         }
-        System.out.println("s1:" + seqOut1.reverse());
-        System.out.println("s2:" + seqOut2.reverse());
+        System.out.println("Sequence1 best match: " + seqOut1.reverse());
+        System.out.println("Sequence1 best match: " + seqOut2.reverse());
+    }
+
+    /**
+     * track back from track matrix (local alignment)
+     */
+    public void localTrackBack() {
+
+//        System.out.println();
+//        for (int i = 0; i < trackMatrix.length; i++) {
+//            for (int j = 0; j < trackMatrix[0].length; j++) {
+//                System.out.printf("%3d", trackMatrix[i][j]);
+//            }
+//            System.out.println();
+//        }
+
+        System.out.println();
+
+        StringBuilder seqOut1 = new StringBuilder();
+        StringBuilder seqOut2 = new StringBuilder();
+
+        int score = scoreMatrix[0][0];
+        int pointer1 = 0;
+        int pointer2 = 0;
+        for (int i = 0; i < scoreMatrix.length; i++) {
+            for (int j = 0; j < scoreMatrix[0].length; j++) {
+                if (scoreMatrix[i][j] > score) {
+                    score = scoreMatrix[i][j];
+                    pointer1 = i;
+                    pointer2 = j;
+                }
+            }
+        }
+
+
+        boolean flag = false;
+
+        while (true) {
+            seqOut1.append(' ');
+            seqOut2.append(' ');
+            flag = false;
+
+            while (trackMatrix[pointer1][pointer2] != 0) {
+                switch (trackMatrix[pointer1][pointer2]) {
+
+                    // leftTop
+                    case 1:
+                        seqOut1.append(sequence1[pointer2 - 1]);
+                        seqOut2.append(sequence2[pointer1 - 1]);
+                        pointer1--;
+                        pointer2--;
+                        break;
+
+                    // left
+                    case 2:
+                        seqOut1.append(sequence1[pointer2 - 1]);
+                        seqOut2.append('-');
+                        pointer2--;
+                        break;
+
+                    // 1 + 2 leftTop & left
+                    case 3:
+                        // -2 once at cross
+                        if (!flag) {
+                            trackMatrix[pointer1][pointer2] -= 2;
+                            flag = true;
+                        }
+                        seqOut1.append(sequence1[pointer2 - 1]);
+                        seqOut2.append('-');
+                        pointer2--;
+                        break;
+
+                    // top
+                    case 4:
+                        seqOut1.append('-');
+                        seqOut2.append(sequence2[pointer1 - 1]);
+                        pointer1--;
+                        break;
+
+                    case 5: // 1 + 4
+                    case 6: // 2 + 4
+                    case 7: // 1 + 2 + 4
+                        // -4 once at crossing
+                        if (!flag) {
+                            trackMatrix[pointer1][pointer2] -= 4;
+                            flag = true;
+                        }
+                        seqOut1.append('-');
+                        seqOut2.append(sequence2[pointer1 - 1]);
+                        pointer1--;
+                        break;
+                    default:
+                        System.out.println("Error");
+                        return;
+                }
+            }
+            if (!flag) {
+                break;
+            }
+        }
+        System.out.println("Sequence1 best match: " + seqOut1.reverse());
+        System.out.println("Sequence1 best match: " + seqOut2.reverse());
     }
 
     public void trackBack0() {
